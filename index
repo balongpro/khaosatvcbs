@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khảo sát Quy trình & Hiệu suất - VCBS</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 1. BIẾN MÀU SẮC (COLOR PALETTE) --- */
+        :root {
+            /* Brand Identity */
+            --vcbs-deep-green: #004F30;
+            --vcbs-lime-green: #8CC63F;
+            
+            /* Semantic */
+            --semantic-red: #D93025;
+            --semantic-green: #188038;
+
+            /* Neutrals */
+            --surface-white: #FFFFFF;
+            --bg-light-gray: #F5F7FA;
+            --text-black: #1A1A1A;
+            --text-gray: #666666;
+            --border-color: #E0E0E0;
+            
+            /* Spacing & Effects */
+            --spacing-unit: 8px;
+            --radius-soft: 8px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --transition-snappy: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* --- 2. RESET & BASE STYLES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-light-gray);
+            color: var(--text-black);
+            line-height: 1.5;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- 3. LAYOUT & CONTAINER --- */
+        .container {
+            max-width: 800px; /* Đảm bảo độ rộng dòng chữ tối ưu cho mắt */
+            margin: 0 auto;
+            padding: 40px 16px;
+        }
+
+        /* --- 4. TYPOGRAPHY HIERARCHY --- */
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--vcbs-deep-green);
+            line-height: 1.2;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 20px; /* Điều chỉnh nhẹ để cân đối trong card */
+            font-weight: 600;
+            color: var(--vcbs-deep-green);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-desc {
+            font-size: 14px;
+            color: var(--text-gray);
+            font-style: italic;
+            margin-bottom: 16px;
+            margin-top: -8px;
+        }
+
+        p {
+            margin-bottom: 16px;
+        }
+
+        /* --- 5. COMPONENTS (CARDS) --- */
+        .card {
+            background-color: var(--surface-white);
+            border-radius: var(--radius-soft);
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid transparent;
+            transition: var(--transition-snappy);
+        }
+
+        /* Hiệu ứng focus nhẹ */
+        .card:focus-within {
+            border-color: var(--vcbs-lime-green);
+        }
+
+        /* --- 6. FORMS & INPUTS --- */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label.question-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: var(--text-black);
+        }
+
+        /* Custom Radio & Checkbox Container */
+        .option-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 4px;
+            transition: var(--transition-snappy);
+            border: 1px solid transparent;
+        }
+
+        .option-item:hover {
+            background-color: var(--bg-light-gray);
+        }
+
+        /* Ẩn input mặc định */
+        .option-item input[type="radio"],
+        .option-item input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-gray);
+            margin-right: 12px;
+            margin-top: 2px; /* Căn chỉnh với dòng đầu của text */
+            position: relative;
+            flex-shrink: 0;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        /* Radio Style */
+        .option-item input[type="radio"] {
+            border-radius: 50%;
+        }
+
+        .option-item input[type="radio"]:checked {
+            border-color: var(--vcbs-deep-green);
+            background-color: #fff;
+        }
+
+        .option-item input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 10px;
+            height: 10px;
+            background-color: var(--vcbs-deep-green);
+            border-radius: 50%;
+        }
+
+        /* Checkbox Style */
+        .option-item input[type="checkbox"] {
+            border-radius: 4px;
+        }
+
+        .option-item input[type="checkbox"]:checked {
+            background-color: var(--vcbs-deep-green);
+            border-color: var(--vcbs-deep-green);
+        }
+
+        .option-item input[type="checkbox"]:checked::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 1px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        /* Text Input Styling */
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-black);
+            transition: var(--transition-snappy);
+            background-color: var(--bg-light-gray);
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--vcbs-deep-green);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(140, 198, 63, 0.2); /* Lime green glow */
+        }
+
+        .other-input {
+            margin-top: 8px;
+            margin-left: 32px; /* Thụt vào thẳng hàng với text */
+            width: calc(100% - 32px);
+            display: none; /* Ẩn mặc định, hiện bằng JS nếu cần hoặc CSS selector */
+        }
+        
+        /* Hiện ô nhập liệu khi radio "Khác" được chọn (Kỹ thuật CSS) */
+        .option-item:has(input.toggle-other:checked) + .other-input {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* --- 7. BUTTONS --- */
+        .btn-submit {
+            background-color: var(--vcbs-deep-green);
+            color: #fff;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 4px; /* Bo góc 4px theo logo */
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition-snappy);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-submit:hover {
+            background-color: #003d25;
+            box-shadow: 0 4px 12px rgba(0, 79, 48, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* --- 8. ANIMATION KEYFRAMES --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- 9. RESPONSIVE --- */
+        @media (max-width: 600px) {
+            .container { padding: 24px 12px; }
+            .card { padding: 24px 16px; }
+            h1 { font-size: 24px; }
+            h2 { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header style="text-align: center; margin-bottom: 32px;">
+        <div style="font-weight: 800; font-size: 24px; color: var(--vcbs-deep-green); margin-bottom: 8px;">
+            VCBS
+            <span style="display:inline-block; width: 40px; height: 4px; background-color: var(--vcbs-lime-green); vertical-align: middle; margin-left: 8px; border-radius: 2px;"></span>
+        </div>
+        <h1>KHẢO SÁT QUY TRÌNH & HIỆU SUẤT</h1>
+        <p style="color: var(--text-gray); max-width: 600px; margin: 0 auto;">
+            Mời Anh/Chị chia sẻ ý kiến để xây dựng môi trường làm việc hiệu quả hơn. Thông tin được bảo mật và chỉ dùng cho mục đích cải tiến nội bộ.
+        </p>
+    </header>
+
+    <form action="#" method="POST">
+
+        <div class="card">
+            <h2>CÂU 1: TÌM VƯỚNG MẮC TRONG QUY TRÌNH HIỆN TẠI</h2>
+            <p class="question-label">Trong công việc hàng ngày, nhóm tác vụ nào đang chiếm dụng nhiều thời gian của Anh/Chị/Bộ phận nhất nhưng mang lại ít giá trị? (Chọn 01 phương án gây bức xúc nhất)</p>
+            
+            <label class="option-item">
+                <input type="radio" name="g1_vuongmac" value="nhaplieu">
+                <span><strong>A. Nhập liệu & Tổng hợp:</strong> Phải nhập tay, copy-paste số liệu từ nhiều nguồn rời rạc để làm báo cáo.</span>
+            </label>
+            <label class="option-item">
+                <input type="radio" name="g1_vuongmac" value="pheduyet">
+                <span><strong>B. Chờ đợi phê duyệt:</strong> Thời gian chờ ký trình, luân chuyển hồ sơ giấy giữa các cấp quá lâu.</span>
+            </label>
+            <label class="option-item">
+                <input type="radio" name="g1_vuongmac" value="soatxet">
+                <span><strong>C. Soát xét & Sửa lỗi:</strong> Phải kiểm tra, đối chiếu lại các sai sót do hệ thống cũ hoặc quy trình thủ công gây ra.</span>
+            </label>
+            <label class="option-item">
+                <input type="radio" name="g1_vuongmac" value="thutuc">
+                <span><strong>D. Thủ tục hành chính:</strong> Họp hành quá nhiều hoặc các quy trình giấy tờ nội bộ rườm rà.</span>
+            </label>
+            <label class="option-item">
+                <input type="radio" name="g1_vuongmac" value="timkiem">
+                <span><strong>E. Tìm kiếm thông tin:</strong> Hệ thống lưu trữ kém, mất nhiều thời gian để truy xuất dữ liệu/văn bản lịch sử.</span>
+            </label>
+            <label class="option-item">
+                <input type="radio" name="g1_vuongmac" value="congnghe">
+                <span><strong>F. Công cụ, máy móc, công nghệ hỗ trợ:</strong> Thiếu các phần mềm, phần cứng phù hợp khiến công việc bị ảnh hưởng, tắc nghẽn.</span>
+            </label>
+            <label class="option-item">
+                <input type="radio" name="g1_vuongmac" value="khac" class="toggle-other">
+                <span><strong>G. Khác</strong> (Nêu rõ bên dưới)</span>
+            </label>
+            <input type="text" class="other-input" placeholder="Vui lòng nêu rõ vướng mắc khác...">
+        </div>
+
+        <div class="card">
+            <h2>NHÓM 2: KIỂM TRA SỨC CHỊU ĐỰNG (SCALABILITY)</h2>
+            <p class="question-label">Nếu khối lượng công việc tăng gấp đôi trong 6 tháng tới (do mở rộng quy mô), rủi ro lớn nhất tại bộ phận của Anh/Chị sẽ là gì?</p>
+
+            <label class="option-item">
+                <input type="radio" name="g2_rui_ro" value="quatai_nhansu">
+                <span><strong>A. Quá tải nhân sự:</strong> Anh em phải làm thêm giờ (OT) triền miên mới hết việc, dẫn đến kiệt sức.</span>
+            </label>
+            <label class="option-item">
+                <input type="radio" name="g2_rui_ro" value="quatai_hethong">
+                <span><strong>B. Quá tải hệ thống:</strong> Phần mềm/Máy móc hiện tại sẽ bị treo, lag hoặc không xử lý nổi dữ liệu lớn.</span>
+            </label>
+            <label class="option-item">
+                <input type="radio" name="g2_rui_ro" value="tacnghen_quytrinh">
+                <span><strong>C. Tắc nghẽn quy trình:</strong> Các thủ tục phê duyệt nặng nề gây ùn ứ hồ sơ.</span>
+            </label>
+            <label class="option-item">
+                <input type="radio" name="g2_rui_ro" value="saisot">
+                <span><strong>D. Rủi ro sai sót:</strong> Áp lực nhanh sẽ dẫn đến sai sót nghiệp vụ hoặc rủi ro tuân thủ tăng cao.</span>
+            </label>
+            <label class="option-item">
+                <input type="radio" name="g2_rui_ro" value="khac" class="toggle-other">
+                <span><strong>E. Khác</strong> (Nêu rõ bên dưới)</span>
+            </label>
+            <input type="text" class="other-input" placeholder="Vui lòng nêu rõ rủi ro khác...">
+        </div>
+
+        <div class="card">
+            <h2>NHÓM 3: VẤN ĐỀ CÔNG CỤ/CÔNG NGHỆ</h2>
+            <p class="question-label">Hệ thống/Phần mềm hiện tại Anh/Chị đang sử dụng gặp vấn đề gì lớn nhất gây cản trở công việc?</p>
+            <p class="section-desc">* Có thể chọn nhiều phương án nếu cần thiết</p>
+
+            <label class="option-item">
+                <input type="checkbox" name="g3_congcu" value="roirac">
+                <span><strong>Rời rạc:</strong> Phải dùng quá nhiều phần mềm khác nhau, dữ liệu không tự động liên thông.</span>
+            </label>
+            <label class="option-item">
+                <input type="checkbox" name="g3_congcu" value="thucong">
+                <span><strong>Thủ công:</strong> Nhiều công đoạn vẫn chưa có tính năng hỗ trợ, phải làm tay bên ngoài (Excel/Word).</span>
+            </label>
+            <label class="option-item">
+                <input type="checkbox" name="g3_congcu" value="tocdo">
+                <span><strong>Tốc độ & Ổn định:</strong> Hệ thống hay bị treo, xử lý chậm khi dữ liệu lớn.</span>
+            </label>
+            <label class="option-item">
+                <input type="checkbox" name="g3_congcu" value="truyxuat">
+                <span><strong>Truy xuất dữ liệu:</strong> Khó khăn khi muốn tự xuất các báo cáo tùy chỉnh (Ad-hoc) để phục vụ công việc.</span>
+            </label>
+            <label class="option-item">
+                <input type="checkbox" name="g3_congcu" value="trainghiem">
+                <span><strong>Trải nghiệm người dùng:</strong> Giao diện khó dùng, thao tác phức tạp, nhiều bước thừa.</span>
+            </label>
+            <label class="option-item">
+                <input type="checkbox" name="g3_congcu" value="thieu_congcu">
+                <span><strong>Thiếu công cụ/công nghệ</strong> phù hợp để hoàn thành công việc.</span>
+            </label>
+            <label class="option-item">
+                <input type="checkbox" name="g3_congcu" value="khac" class="toggle-other">
+                <span><strong>Khác</strong> (Nêu rõ bên dưới)</span>
+            </label>
+            <input type="text" class="other-input" placeholder="Vấn đề công nghệ khác...">
+        </div>
+
+        <div class="card">
+            <h2>NHÓM 4: ĐIỂM NGHẼN PHỐI HỢP (CROSS-FUNCTIONAL)</h2>
+            
+            <div class="form-group">
+                <label class="question-label" for="g4_doitac">Câu 1: Anh/Chị thường xuyên gặp vướng mắc nhất khi phối hợp với Khối/Phòng ban nào?</label>
+                <input type="text" id="g4_doitac" placeholder="Ví dụ: Kinh doanh, Kế toán, IT, Pháp chế, DVKH..." list="departments">
+                <datalist id="departments">
+                    <option value="Khối Kinh doanh">
+                    <option value="Phòng Kế toán">
+                    <option value="Phòng IT (CNTT)">
+                    <option value="Phòng Pháp chế">
+                    <option value="Dịch vụ khách hàng">
+                    <option value="Nhân sự">
+                </datalist>
+            </div>
+
+            <div class="form-group" style="margin-top: 32px; border-top: 1px dashed var(--border-color); padding-top: 24px;">
+                <p class="question-label">Câu 2: Rào cản lớn nhất khiến việc phối hợp giữa bộ phận của Anh/Chị với các phòng ban khác chưa đạt hiệu quả tối đa là gì?</p>
+                
+                <label class="option-item">
+                    <input type="radio" name="g4_raocan" value="tocdo">
+                    <span><strong>A. Tốc độ phản hồi (SLA):</strong> Thời gian chờ đối tác nội bộ trả lời/xử lý yêu cầu quá lâu.</span>
+                </label>
+                <label class="option-item">
+                    <input type="radio" name="g4_raocan" value="quytrinh">
+                    <span><strong>B. Quy trình chưa khớp:</strong> Thủ tục chuyển giao công việc giữa hai bên còn chồng chéo hoặc thiếu hướng dẫn rõ ràng.</span>
+                </label>
+                <label class="option-item">
+                    <input type="radio" name="g4_raocan" value="dulieu">
+                    <span><strong>C. Dữ liệu đầu vào:</strong> Thông tin nhận được thường thiếu, sai hoặc không đúng định dạng, phải làm lại.</span>
+                </label>
+                <label class="option-item">
+                    <input type="radio" name="g4_raocan" value="congcu">
+                    <span><strong>D. Công cụ kết nối:</strong> Thiếu hệ thống chung để theo dõi tiến độ, chủ yếu vẫn trao đổi qua Zalo/Email nên dễ trôi việc.</span>
+                </label>
+                <label class="option-item">
+                    <input type="radio" name="g4_raocan" value="khac" class="toggle-other">
+                    <span><strong>E. Khác</strong> (Nêu rõ bên dưới)</span>
+                </label>
+                <input type="text" class="other-input" placeholder="Rào cản khác...">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>NHÓM 5: NGUYỆN VỌNG CÁ NHÂN</h2>
+            <p class="question-label">Để đáp ứng khối lượng công việc tăng lên trong thời gian tới, Anh/Chị cảm thấy mình cần được bổ sung kỹ năng nào nhất?</p>
+
+            <label class="option-item">
+                <input type="checkbox" name="g5_kynang" value="congnghe">
+                <span>Kỹ năng sử dụng công nghệ/Phân tích dữ liệu để làm việc nhanh hơn.</span>
+            </label>
+            <label class="option-item">
+                <input type="checkbox" name="g5_kynang" value="chuyenmon">
+                <span>Kỹ năng chuyên môn sâu về nghiệp vụ mới.</span>
+            </label>
+            <label class="option-item">
+                <input type="checkbox" name="g5_kynang" value="quanly">
+                <span>Kỹ năng quản lý thời gian và tổ chức công việc.</span>
+            </label>
+            <label class="option-item">
+                <input type="checkbox" name="g5_kynang" value="giaotiep">
+                <span>Kỹ năng phối hợp và giao tiếp liên phòng ban.</span>
+            </label>
+            <label class="option-item">
+                <input type="checkbox" name="g5_kynang" value="ngoaingu">
+                <span>Kỹ năng ngoại ngữ.</span>
+            </label>
+            <label class="option-item">
+                <input type="checkbox" name="g5_kynang" value="khac" class="toggle-other">
+                <span>Khác (Nêu rõ)</span>
+            </label>
+            <input type="text" class="other-input" placeholder="Kỹ năng mong muốn khác...">
+        </div>
+
+        <div class="card">
+            <h2>NHÓM 6: HIẾN KẾ SỬ DỤNG VỐN (STRATEGY)</h2>
+            <p class="question-label">Từ góc độ chuyên môn của mình, Anh/Chị đề xuất 01 sáng kiến cụ thể nào để giúp Phòng ban của mình hoặc Công ty tăng năng suất?</p>
+            <p class="section-desc" style="margin-bottom: 16px;">(Ví dụ: Cắt bỏ bước phê duyệt X, Mua phần mềm Y, Gộp quy trình Z…)</p>
+            
+            <textarea name="g6_kiennghi" rows="5" placeholder="Nhập ý kiến đóng góp của Anh/Chị tại đây..."></textarea>
+        </div>
+
+        <div style="text-align: center; margin-top: 32px;">
+            <button type="submit" class="btn-submit">Gửi Khảo Sát</button>
+        </div>
+
+    </form>
+    
+    <footer style="margin-top: 40px; text-align: center; color: var(--text-gray); font-size: 12px;">
+        © 2024 VCBS - Vietcombank Securities. All rights reserved.<br>
+        Designed with "Clean & Clear" Guideline.
+    </footer>
+</div>
+
+</body>
+</html>
